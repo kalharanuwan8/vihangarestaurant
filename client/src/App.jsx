@@ -25,8 +25,6 @@ function App() {
         <Route path="/itemsmenu" element={<Items />} />
         <Route path="/addmembers" element={<Addmembers />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/billed" element={<BilledOrders />} />
-        <Route path ="/held" element={<HeldOrders />} />
       </Routes>
     </Router>
   );
