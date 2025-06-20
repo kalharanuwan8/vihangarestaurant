@@ -5,7 +5,7 @@ const SidebarCash = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-20 sm:w-24 md:w-28 bg-blue-900 text-white h-screen flex flex-col items-center py-6 fixed left-0 top-0 shadow-md">
+    <div className="w-16 sm:w-20 md:w-24 bg-blue-900 text-white h-screen flex flex-col items-center py-6 fixed left-0 top-0 shadow-md">
       <div className="mb-12">
         <FaUserCircle className="text-4xl" />
         <p className="text-xs mt-1 hidden md:block">Profile</p>
