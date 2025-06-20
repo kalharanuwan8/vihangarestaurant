@@ -63,7 +63,7 @@ const Cashier = () => {
     if (bill) {
       setCartItems(bill.items);
       setHeldBills((prev) => prev.filter((b) => b.id !== id));
-      navigate("/cashier/billed"); // navigate to /cashier/billed
+      navigate("/cashier"); // navigate to /cashier
     }
   };
 

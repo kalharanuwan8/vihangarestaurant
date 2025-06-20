@@ -15,7 +15,7 @@ const SidebarCash = () => {
         {/* Navigate to Held Orders page */}
         <div
           className="flex flex-col items-center cursor-pointer hover:text-yellow-400"
-          onClick={() => navigate("/held")}
+          onClick={() => navigate("/cashier/hold")}
         >
           <FaRegClock className="text-2xl" />
           <span className="text-xs mt-1 hidden md:block">Hold</span>
@@ -23,7 +23,7 @@ const SidebarCash = () => {
 
         <div
           className="flex flex-col items-center cursor-pointer hover:text-yellow-400"
-          onClick={() => navigate("/billed")}
+          onClick={() => navigate("/cashier/billed")}
           >
             <FaReceipt className="text-2xl" />
           <span className="text-xs mt-1 hidden md:block">Billed</span>
