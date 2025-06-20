@@ -7,8 +7,6 @@ import Cashier from "./pages/Cashier";
 import Items from "./pages/Items";
 import Addmembers from "./pages/Addmembers";
 import Settings from "./pages/Settings";
-import BilledOrders from "./pages/BilledOrders";
-import HeldOrders from "./pages/HeldOrders";
 
 function App() {
   const [role, setRole] = useState(null);
