@@ -11,6 +11,7 @@ import BilledOrders from "./pages/BilledOrders";
 import HeldOrders from "./pages/HeldOrders";
 import Logs from "./pages/Logs";
 
+
 function App() {
   const [role, setRole] = useState(null);
 
@@ -26,9 +27,11 @@ function App() {
         <Route path="/itemsmenu" element={<Items />} />
         <Route path="/addmembers" element={<Addmembers />} />
         <Route path="/settings" element={<Settings />} />
+
         <Route path="/billed" element={<BilledOrders />} />
         <Route path ="/held" element={<HeldOrders />} />
         <Route path="/logs" element={<Logs />} />
+
       </Routes>
     </Router>
   );
