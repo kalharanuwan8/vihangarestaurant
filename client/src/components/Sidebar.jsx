@@ -58,7 +58,9 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
   return (
     <div
       className={`bg-indigo-500 text-white h-screen fixed top-0 left-0 z-50 flex flex-col
-      transition-all duration-300 ease-in-out shadow-lg ${isExpanded ? 'w-52' : 'w-20'}`}
+        transition-all duration-300 ease-in-out shadow-lg
+        ${isExpanded ? 'w-52' : 'w-16 sm:w-20'}
+      `}
     >
       {/* Header section */}
       <div className={`p-4 pb-2 flex items-center ${isExpanded ? 'justify-between' : 'justify-center'}`}>
