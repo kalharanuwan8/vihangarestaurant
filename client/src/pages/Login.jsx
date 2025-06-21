@@ -15,6 +15,8 @@ const Login = () => {
       navigate('/admin');
     } else if (email === 'cashier@gmail.com' && password === 'cashier123') {
       navigate('/cashier');
+      } else if (email === 'adminmobile@gmail.com' && password === 'admin123') {
+      navigate('/mobile');
     } else {
       alert('Invalid email or password');
     }

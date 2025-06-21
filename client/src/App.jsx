@@ -10,6 +10,7 @@ import Settings from "./pages/Settings";
 import BilledOrders from "./pages/BilledOrders";
 import HeldOrders from "./pages/HeldOrders";
 import Logs from "./pages/Logs";
+import Adminmobile from "./pages/Adminmobile";
 
 function App() {
   const [role, setRole] = useState(null);
@@ -22,13 +23,13 @@ function App() {
 
         {/* Nest all cashier-related routes inside Cashier */}
         <Route path="/cashier/*" element={<Cashier />} />
-
         <Route path="/itemsmenu" element={<Items />} />
         <Route path="/addmembers" element={<Addmembers />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/billed" element={<BilledOrders />} />
         <Route path ="/held" element={<HeldOrders />} />
         <Route path="/logs" element={<Logs />} />
+        <Route path='/mobile' element={<Adminmobile />} />  
       </Routes>
     </Router>
   );

@@ -26,10 +26,17 @@ const Cashier = () => {
     });
   };
 
-  const handleQtyChange = (id, delta) => {
+  const handleQtyChange = (id, value, isDirect = false) => {
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
+        item.id === id
+          ? {
+              ...item,
+              qty: isDirect
+                ? Math.max(0, value)
+                : Math.max(0, item.qty + value),
+            }
+          : item
       )
     );
   };
@@ -63,7 +70,7 @@ const Cashier = () => {
     if (bill) {
       setCartItems(bill.items);
       setHeldBills((prev) => prev.filter((b) => b.id !== id));
-      navigate("/cashier"); // navigate to /cashier
+      navigate("/cashier");
     }
   };
 
@@ -74,28 +81,24 @@ const Cashier = () => {
 
   return (
     <div className="relative min-h-screen flex bg-gray-100">
-      {/* Sidebar always expanded */}
       <SidebarCash
         isExpanded={true}
         heldBills={heldBills}
-        onSelectHold={() => navigate("hold")} // navigate to /cashier/hold
+        onSelectHold={() => navigate("hold")}
       />
 
-      {/* Main content with fixed left margin */}
       <div className="flex-1 flex flex-col ml-24 transition-all duration-300 ease-in-out">
-        {/* Removed HorizontalNavbar */}
-
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-4">
           <Routes>
-            {/* Main billing page */}
             <Route
               path="/"
               element={
                 <>
-                  <div className="flex w-full">
+                  <div className="flex w-full gap-4">
                     <div className="flex-grow bg-gray-50 min-h-screen">
                       <ProductGrid onAddToCart={handleAddToCart} />
                     </div>
+
                     <BillingCart
                       items={cartItems}
                       onQtyChange={handleQtyChange}
@@ -119,7 +122,6 @@ const Cashier = () => {
               }
             />
 
-            {/* Held Orders */}
             <Route
               path="hold"
               element={
@@ -130,7 +132,6 @@ const Cashier = () => {
               }
             />
 
-            {/* Billed Orders */}
             <Route
               path="billed"
               element={<BilledOrders billedBills={billedBills} />}
