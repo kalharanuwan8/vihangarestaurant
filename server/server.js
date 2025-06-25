@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import userRoutes from './routes/UserRoute.js'; // 🆕 Import user routes
 
 dotenv.config();
 
@@ -31,6 +32,9 @@ mongoose.connect(MONGO_URL, {
 app.get('/', (req, res) => {
   res.send('Server is running...');
 });
+
+// 🆕 User API routes
+app.use('/api/users', userRoutes);
 
 // Start server
 app.listen(PORT, () => {
