@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import userRoutes from './routes/UserRoute.js'; // 🆕 Import user routes
+import itemRoutes from './routes/ItemRoute.js'; // 🆕 Import item routes
+import billRoutes from './routes/BillRoute.js'; // 🆕 Import bill routes
 
 dotenv.config();
 
@@ -31,6 +34,11 @@ mongoose.connect(MONGO_URL, {
 app.get('/', (req, res) => {
   res.send('Server is running...');
 });
+
+// 🆕 User API routes
+app.use('/api/users', userRoutes);
+app.use('/api/items', itemRoutes); // 🆕 Item API routes
+app.use('/api/bills', billRoutes); // 🆕 Bill API routes
 
 // Start server
 app.listen(PORT, () => {
