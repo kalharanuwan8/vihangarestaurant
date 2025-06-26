@@ -7,3 +7,21 @@
   --color-brand-light: #fbfdff;
   --color-brand-gray: #f1f5f9;  
 }
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printable,
+  .printable * {
+    visibility: visible !important;
+  }
+
+  .printable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
