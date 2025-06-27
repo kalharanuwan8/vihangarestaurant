@@ -64,7 +64,7 @@ export const createBill = async (req, res) => {
 export const getAllBills = async (req, res) => {
   try {
     const bills = await Bill.find()
-      .populate('billItems.item', 'itemName') // Show item names
+      .populate('billItems.item', 'itemName category') // Show item names,catagory
       .sort({ createdAt: -1 });
     res.status(200).json(bills);
   } catch (error) {

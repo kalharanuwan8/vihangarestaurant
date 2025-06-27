@@ -112,7 +112,7 @@ const BillingCart = ({
             onClick={() => handleOpenModal("Restaurant")}
             disabled={items.length === 0}
           >
-            Print Bill
+            Bill
           </button>
 
           <button

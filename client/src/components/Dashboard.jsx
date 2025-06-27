@@ -1,4 +1,3 @@
-// src/components/Dashboard.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from '../api/axios';
 import {
@@ -10,7 +9,6 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import SalesBarChart from '../components/charts/SalesBarChart';
 import TopProductPieChart from '../components/charts/TopProductsPieChart';
-import { useNavigate } from 'react-router-dom';
 
 const StatCard = ({ title, value, icon: Icon, color }) => {
   const variants = {
@@ -29,7 +27,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
           <p className="text-2xl sm:text-3xl font-bold">{value}</p>
         </div>
         <div className="p-2 sm:p-3 bg-gray-100 rounded-full">
-          <Icon className="h-6 w-6 text-gray-600"/>
+          <Icon className="h-6 w-6 text-gray-600" />
         </div>
       </div>
     </div>
@@ -42,66 +40,67 @@ const Dashboard = () => {
   const [filterType, setFilterType] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 10;
-  const navigate = useNavigate();
 
-  // Fetch bills
   useEffect(() => {
     axios.get('/bills')
       .then(res => setBills(res.data))
       .catch(console.error);
   }, []);
 
-  // Prepare items list and chart data
-  const salesEntries = useMemo(() => {
-    const list = [];
+  const salesAggregated = useMemo(() => {
+    const map = {};
+
     bills.forEach(bill => {
+      const billDate = new Date(bill.createdAt).toISOString().split('T')[0];
+      const type = bill.billType;
+
       bill.billItems.forEach(bi => {
-        list.push({
-          name: bi.item.itemName || bi.item._id,
-          price: bi.priceAtSale * bi.quantity,
-          date: new Date(bill.createdAt).toISOString().split('T')[0],
-          type: bill.billType,
-        });
+        const name = bi.item.itemName || bi.item._id;
+        const category = bi.item.category || "Unknown";
+        const key = `${billDate}|${type}|${name}|${category}`;
+
+        if (!map[key]) {
+          map[key] = { date: billDate, type, name, category, qty: 0, revenue: 0 };
+        }
+
+        map[key].qty += bi.quantity;
+        map[key].revenue += bi.quantity * bi.priceAtSale;
       });
     });
-    return list;
+
+    return Object.values(map);
   }, [bills]);
 
-  // Filters
-  const filtered = salesEntries.filter(e =>
+  const filtered = salesAggregated.filter(e =>
     (!filterDate || e.date === filterDate) &&
     (filterType === 'All' || e.type === filterType)
   );
 
   const pageCount = Math.ceil(filtered.length / perPage);
-  const pageEntries = filtered.slice((currentPage-1)*perPage, currentPage*perPage);
+  const pageEntries = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
-  // Summary stats
-  const totalSales = filtered.reduce((s, e) => s + e.price, 0).toFixed(2);
-  const byType = {};
-  filtered.forEach(e => {
-    byType[e.name] = (byType[e.name] || 0) + e.price;
-  });
-  const stats = {
-    sales: totalSales,
-    food: filtered.filter(e => e.name.toLowerCase().includes('food')).reduce((s,e)=>s+e.price,0).toFixed(2),
-    bev: filtered.filter(e => e.name.toLowerCase().includes('latte') || e.name.toLowerCase().includes('espresso'))
-      .reduce((s,e)=>s+e.price,0).toFixed(2)
-  };
+  const totalSales = filtered.reduce((sum, item) => sum + item.revenue, 0).toFixed(2);
+  const bevSales = filtered
+    .filter(item => item.category === 'Beverage')
+    .reduce((sum, item) => sum + item.revenue, 0)
+    .toFixed(2);
+  const foodSales = filtered
+    .filter(item => item.category !== 'Beverage')
+    .reduce((sum, item) => sum + item.revenue, 0)
+    .toFixed(2);
 
-  // Export PDF
   const downloadPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("Sales Report",14,20);
-    if(filterDate){
+    doc.text("Sales Report", 14, 20);
+    if (filterDate) {
       doc.setFontSize(12);
-      doc.text(`Filtered: ${filterType} on ${filterDate}`,14,30);
+      doc.text(`Filtered: ${filterType} on ${filterDate}`, 14, 30);
     }
-    const head = ["Item","Amount","Date"];
-    const body = filtered.map(e => [e.name, e.price.toFixed(2), e.date]);
-    autoTable(doc,{head:[head], body:body, startY: filterDate?40:30});
-    doc.save(`sales_report_${filterType}_${filterDate||'all'}.pdf`);
+    const head = ["Date", "Type", "Item", "Qty", "Revenue"];
+    const body = filtered.map(e => [e.date, e.type, e.name, e.qty, e.revenue.toFixed(2)]);
+    autoTable(doc, { head: [head], body, startY: filterDate ? 40 : 30 });
+    doc.save(`sales_report_${filterType}_${filterDate || 'all'}.pdf`);
   };
 
   return (
@@ -109,70 +108,83 @@ const Dashboard = () => {
       <h1 className="text-2xl font-bold">Sales Dashboard</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard title="Total Sales" value={`Rs. ${stats.sales}`} icon={ShoppingCartIcon} color="blue"/>
-        <StatCard title="Food Revenue" value={`Rs. ${stats.food}`} icon={CurrencyDollarIcon} color="green"/>
-        <StatCard title="Beverages" value={`Rs. ${stats.bev}`} icon={UserGroupIcon} color="yellow"/>
+        <StatCard title="Total Sales" value={`Rs. ${totalSales}`} icon={ShoppingCartIcon} color="blue" />
+        <StatCard title="Food Revenue" value={`Rs. ${foodSales}`} icon={CurrencyDollarIcon} color="green" />
+        <StatCard title="Beverages" value={`Rs. ${bevSales}`} icon={UserGroupIcon} color="yellow" />
       </div>
 
       <div className="bg-white p-4 rounded-md shadow">
         <div className="flex flex-wrap items-center justify-between mb-4 space-y-2">
-          <div className="flex items-center gap-4">
-            <input type="date" value={filterDate} onChange={e=>{setFilterDate(e.target.value);setCurrentPage(1);}}
-              className="border rounded px-3 py-2"/>
-            <select value={filterType} onChange={e=>{setFilterType(e.target.value); setCurrentPage(1);}}
-              className="border rounded px-3 py-2">
-              {["All","Restaurant","Delivery"].map(t=><option key={t}>{t}</option>)}
+          <div className="flex items-center space-x-4">
+            <input
+              type="date"
+              value={filterDate}
+              onChange={e => { setFilterDate(e.target.value); setCurrentPage(1); }}
+              className="border rounded px-3 py-2 text-sm"
+            />
+            <select
+              value={filterType}
+              onChange={e => { setFilterType(e.target.value); setCurrentPage(1); }}
+              className="border rounded px-3 py-2 text-sm"
+            >
+              {["All", "Restaurant", "Delivery"].map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
-          <button onClick={downloadPDF} className="bg-blue-600 text-white px-4 py-2 rounded">Download Report</button>
+          <button onClick={downloadPDF} className="bg-blue-600 text-white px-4 py-2 rounded text-sm">Download Report</button>
         </div>
 
-       <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-  <table className="min-w-full text-sm text-gray-800">
-    <thead className="bg-gray-100 text-xs uppercase tracking-wider text-gray-600">
-      <tr>
-        <th className="px-4 py-3 text-left">Item</th>
-        <th className="px-4 py-3 text-right">Amount</th>
-        <th className="px-4 py-3 text-center">Date</th>
-        <th className="px-4 py-3 text-center">Type</th>
-      </tr>
-    </thead>
-    <tbody className="divide-y divide-gray-200 bg-white">
-      {pageEntries.length ? (
-        pageEntries.map((e, i) => (
-          <tr key={i} className="hover:bg-gray-50 transition">
-            <td className="px-4 py-3 font-medium">{e.name}</td>
-            <td className="px-4 py-3 text-right text-blue-600 font-semibold">Rs. {e.price.toFixed(2)}</td>
-            <td className="px-4 py-3 text-center">{e.date}</td>
-            <td className="px-4 py-3 text-center">
-              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                e.type === 'Restaurant'
-                  ? 'bg-green-100 text-green-700'
-                  : e.type === 'Delivery'
-                  ? 'bg-yellow-100 text-yellow-700'
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {e.type}
-              </span>
-            </td>
-          </tr>
-        ))
-      ) : (
-        <tr>
-          <td colSpan="4" className="text-center py-6 text-gray-500">No sales found.</td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
+        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <table className="min-w-full text-sm text-gray-800">
+            <thead className="bg-gray-100 text-xs uppercase tracking-wider text-gray-600">
+              <tr>
+                <th className="px-4 py-3 text-left">Date</th>
+                <th className="px-4 py-3 text-center">Type</th>
+                <th className="px-4 py-3 text-left">Item</th>
+                <th className="px-4 py-3 text-right">Qty Sold</th>
+                <th className="px-4 py-3 text-right">Revenue</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {pageEntries.length ? (
+                pageEntries.map((e, i) => (
+                  <tr key={i} className="hover:bg-gray-50">
+                    <td className="px-4 py-3">{e.date}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        e.type === 'Restaurant' ? 'bg-green-100 text-green-700' :
+                        e.type === 'Delivery' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-gray-100 text-gray-600'}`}>
+                        {e.type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">{e.name}</td>
+                    <td className="px-4 py-3 text-right">{e.qty}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-blue-600">Rs. {e.revenue.toFixed(2)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-6 text-gray-500">No sales found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-
-        <div className="flex justify-end space-x-2 mt-4">
-          <button onClick={()=>setCurrentPage(p=>Math.max(1,p-1))} disabled={currentPage===1}
-            className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
+        <div className="flex justify-end space-x-2 mt-4 text-sm">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50">
+            Prev
+          </button>
           <span className="py-1">Page {currentPage} / {pageCount}</span>
-          <button onClick={()=>setCurrentPage(p=>Math.min(pageCount,p+1))} disabled={currentPage===pageCount}
-            className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(pageCount, p + 1))}
+            disabled={currentPage === pageCount}
+            className="px-3 py-1 border rounded disabled:opacity-50">
+            Next
+          </button>
         </div>
       </div>
 

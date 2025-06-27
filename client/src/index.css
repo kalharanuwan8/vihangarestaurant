@@ -23,5 +23,14 @@
     top: 0;
     left: 0;
     width: 100%;
+    padding: 20px;
+    background: white;
+    z-index: 9999;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }
+
+

@@ -1,16 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const PrintBillModal = ({ items, total, billType, onClose, onSave }) => {
+  const [shouldPrint, setShouldPrint] = useState(false);
   const now = new Date();
+
+  useEffect(() => {
+    if (shouldPrint) {
+      const printTimeout = setTimeout(() => {
+        window.print();
+      }, 300); // Allow DOM to fully render before printing
+
+      const handleAfterPrint = () => {
+        setShouldPrint(false);
+        onClose(); // ✅ Close modal only after print completes
+      };
+
+      window.addEventListener("afterprint", handleAfterPrint);
+
+      return () => {
+        clearTimeout(printTimeout);
+        window.removeEventListener("afterprint", handleAfterPrint);
+      };
+    }
+  }, [shouldPrint, onClose]);
 
   const handlePrintAndSave = async () => {
     try {
-      await onSave(); // Save first
-      setTimeout(() => {
-        window.print(); // Then trigger print
-      }, 100); // Small delay to ensure DOM is ready
+      await onSave();        // ✅ First save the bill
+      setShouldPrint(true);  // ✅ Then trigger printing
     } catch (err) {
-      console.error("Error saving before printing:", err);
+      console.error("Failed to save bill before print:", err);
     }
   };
 
@@ -28,7 +47,7 @@ const PrintBillModal = ({ items, total, billType, onClose, onSave }) => {
           </p>
         </div>
 
-        {/* Item List */}
+        {/* Items */}
         <div className="space-y-2 mb-4">
           {items.map((item) => (
             <div key={item.cartId} className="flex justify-between border-b border-dashed pb-1">
@@ -52,14 +71,14 @@ const PrintBillModal = ({ items, total, billType, onClose, onSave }) => {
           Total: Rs. {total.toFixed(2)}
         </div>
 
-        {/* Footer Note */}
+        {/* Footer */}
         <div className="mt-5 text-center text-[11px] text-gray-600 border-t pt-3">
           <p>Thank you for your order! 🙏</p>
           <p>Please visit again. ❤</p>
         </div>
 
         {/* Buttons */}
-        <div className="mt-4 flex flex-col gap-2 text-sm">
+        <div className="mt-4 flex flex-col gap-2 text-sm no-print">
           <button
             onClick={handlePrintAndSave}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
