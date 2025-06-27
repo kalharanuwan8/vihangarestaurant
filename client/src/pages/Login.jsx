@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();  // <-- IMPORTANT: get navigate function here
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (email === 'admin@gmail.com' && password === 'admin123') {
+  try {
+    const res = await axios.post('http://localhost:5000/api/auth/login', {
+      email,
+      password,
+    });
+
+    const user = res.data.user;
+
+    if (user.isAdmin) {
       navigate('/admin');
-    } else if (email === 'cashier@gmail.com' && password === 'cashier123') {
-      navigate('/cashier');
-      } else if (email === 'adminmobile@gmail.com' && password === 'admin123') {
-      navigate('/mobile');
     } else {
-      alert('Invalid email or password');
+      navigate('/cashier');
     }
-
-    console.log('Logging in with:', { email, password });
-  };
+  } catch (error) {
+    console.error('Login error:', error);
+    alert(error.response?.data?.message || 'Login failed');
+  }
+};
 
   const EyeIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>

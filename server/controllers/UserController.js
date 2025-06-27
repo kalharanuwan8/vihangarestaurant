@@ -1,82 +1,37 @@
-import User  from '../model/User.js';
+// backend/controllers/userController.js
+import User from '../model/User.js';
 
-// Create a new user
 export const createUser = async (req, res) => {
-    try {
-        const { username, email, password, role } = req.body;
+  try {
+    const { email, password, isAdmin } = req.body;
 
-        const newUser = new User({
-            username,
-            email,
-            password, // Plaintext (not recommended for production)
-            role
-        });
-
-        await newUser.save();
-        res.status(201).json({ message: 'User created successfully', user: newUser });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({ message: 'Username or email already exists.' });
-        }
-        res.status(500).json({ message: 'Error creating user', error: error.message });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
     }
-};
 
-// Get all users
-export const getAllUsers     = async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching users', error: error.message });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists with this email.' });
     }
-};
 
-// Get user by ID
-export const getUserById = async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json(user);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching user', error: error.message });
-    }
-};
+    const user = new User({
+      email,
+      password, // ⚠️ No hashing here as per your request
+      isAdmin
+    });
 
-// Update a user by ID
-export const updateUserById = async (req, res) => {
-    try {
-        const updates = req.body;
+    await user.save();
 
-        const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            updates,
-            { new: true, runValidators: true }
-        ).select('-password');
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({ message: 'Username or email already exists.' });
-        }
-        res.status(500).json({ message: 'Error updating user', error: error.message });
-    }
-};
-
-// Delete a user by ID
-export const deleteUserById = async (req, res) => {
-    try {
-        const deletedUser = await User.findByIdAndDelete(req.params.id);
-        if (!deletedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ message: 'User deleted successfully', user: deletedUser });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting user', error: error.message });
-    }
+    res.status(201).json({
+      message: 'User created successfully',
+      user: {
+        id: user._id,
+        email: user.email,
+        isAdmin: user.isAdmin
+      }
+    });
+  } catch (error) {
+    console.error('Error in createUser:', error);
+    res.status(500).json({ message: 'Server error while creating user' });
+  }
 };
