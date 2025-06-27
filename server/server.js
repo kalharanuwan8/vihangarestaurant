@@ -4,8 +4,11 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRoutes from './routes/UserRoute.js'; // 🆕 Import user routes
 import itemRoutes from './routes/ItemRoute.js'; // 🆕 Import item routes
+
 import transbillRoutes from './routes/TransbillRoute.js';
+
 import billRoutes from './routes/BillRoute.js'; // 🆕 Import bill routes
+import authRoutes from './routes/AuthRoute.js'; // 🆕 Import auth routes
 
 dotenv.config();
 
@@ -40,7 +43,11 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes); // 🆕 Item API routes
 app.use('/api/bills', billRoutes); // 🆕 Bill API routes
+
 app.use('/api/transbills', transbillRoutes);
+
+app.use('/api/auth', authRoutes); // 🆕 Auth API routes
+
 
 
 // Start server
