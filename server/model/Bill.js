@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const billSchema = new mongoose.Schema({
   billCode: {
     type: String,
-    required: true, // Made optional for flexibility
+    required: true,
     unique: true,
     trim: true
   },
@@ -30,8 +30,16 @@ const billSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  billType: {
+    type: String,
+    enum: ['Restaurant', 'Delivery'],
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-  // Removed cashier, date, time fields
 });
 
 const Bill = mongoose.model('Bill', billSchema);

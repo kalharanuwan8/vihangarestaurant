@@ -1,10 +1,13 @@
 import Bill from '../model/Bill.js';
 import Item from '../model/Item.js';
 
-// Create a new bill
 export const createBill = async (req, res) => {
   try {
-    const { billCode, billItems } = req.body;
+    const { billCode, billItems, billType } = req.body;
+
+    if (!billCode || !billItems || !billItems.length || !billType) {
+      return res.status(400).json({ message: 'Invalid bill data' });
+    }
 
     let total = 0;
     const populatedBillItems = [];
@@ -15,28 +18,41 @@ export const createBill = async (req, res) => {
         return res.status(404).json({ message: `Item with ID ${billItem.item} not found.` });
       }
 
-      // Calculate total and prepare bill item entry
+      // ✅ Only check stock and reduce if item has stock tracking (quantity !== null)
+      if (item.quantity !== null) {
+        if (item.quantity < billItem.quantity) {
+          return res.status(400).json({
+            message: `Not enough stock for "${item.itemName}". Only ${item.quantity} available.`
+          });
+        }
+
+        // Reduce quantity
+        item.quantity -= billItem.quantity;
+        await item.save();
+      }
+
       populatedBillItems.push({
-        item: item._id.toString(), // store as string as per your schema
+        item: item._id,
         quantity: billItem.quantity,
         priceAtSale: item.price
       });
 
       total += item.price * billItem.quantity;
-
-      // Update item quantity
-      item.quantity -= billItem.quantity;
-      await item.save();
     }
 
     const newBill = new Bill({
       billCode,
       billItems: populatedBillItems,
-      total
+      total,
+      billType
     });
 
     await newBill.save();
-    res.status(201).json({ message: 'Bill created successfully', bill: newBill });
+
+    res.status(201).json({
+      message: '✅ Bill created successfully',
+      bill: newBill
+    });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({ message: 'Bill code already exists.' });
@@ -45,20 +61,21 @@ export const createBill = async (req, res) => {
   }
 };
 
-// Get all bills
 export const getAllBills = async (req, res) => {
   try {
-    const bills = await Bill.find();
+    const bills = await Bill.find()
+      .populate('billItems.item', 'itemName category') // Show item names,catagory
+      .sort({ createdAt: -1 });
     res.status(200).json(bills);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching bills', error: error.message });
   }
 };
 
-// Get bill by ID
 export const getBillById = async (req, res) => {
   try {
-    const bill = await Bill.findById(req.params.id);
+    const bill = await Bill.findById(req.params.id)
+      .populate('billItems.item', 'itemName');
     if (!bill) {
       return res.status(404).json({ message: 'Bill not found' });
     }
