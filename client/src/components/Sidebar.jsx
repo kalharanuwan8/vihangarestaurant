@@ -7,7 +7,8 @@ import {
   ChevronDoubleLeftIcon, 
   ChevronDoubleRightIcon, 
   UserPlusIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  BanknotesIcon // 🆕 Icon for Transaction Bills
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,29 +31,34 @@ const MenuItem = React.memo(({ icon: Icon, label, isExpanded, onClick }) => (
 const Sidebar = ({ isExpanded, toggleSidebar }) => {
   const navigate = useNavigate();
 
-  const handleitemsclick = (e) => {
-    e.preventDefault();
-    navigate('/itemsmenu');
-  };
-
-  const handledashboardclick = (e) => {
+  const handleDashboardClick = (e) => {
     e.preventDefault();
     navigate('/admin');
   };
 
-  const handleaddmembers = (e) => {
+  const handleAddMembersClick = (e) => {
     e.preventDefault();
     navigate('/addmembers');
   };
 
-  const handlesettingsclick = (e) => {
+  const handleItemsClick = (e) => {
+    e.preventDefault();
+    navigate('/itemsmenu');
+  };
+
+  const handleLogsClick = (e) => {
+    e.preventDefault();
+    navigate('/logs');
+  };
+
+  const handleSettingsClick = (e) => {
     e.preventDefault();
     navigate('/settings');
   };
 
-  const handlelogsclick = (e) => {
+  const handleTransactionBillsClick = (e) => {
     e.preventDefault();
-    navigate('/logs');
+    navigate('/transbills');
   };
 
   return (
@@ -66,7 +72,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       <div className={`p-4 pb-2 flex items-center ${isExpanded ? 'justify-between' : 'justify-center'}`}>
         {isExpanded && (
           <div className="flex items-center space-x-2 transition-opacity duration-300">
-            {/* Brand / Logo section can go here */}
+            {/* You can place logo or brand name here */}
           </div>
         )}
         <button onClick={toggleSidebar} className="p-1.5 rounded-lg hover:bg-indigo-600 transition-colors">
@@ -77,11 +83,12 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       {/* Navigation */}
       <div className="flex-1 flex flex-col px-3 overflow-hidden">
         <nav className="flex-1 space-y-2">
-          <MenuItem icon={ChartPieIcon} label="Dashboard" isExpanded={isExpanded} onClick={handledashboardclick} />
-          <MenuItem icon={UserPlusIcon} label="Add Members" isExpanded={isExpanded} onClick={handleaddmembers} />
-          <MenuItem icon={QueueListIcon} label="Items" isExpanded={isExpanded} onClick={handleitemsclick} />
-          <MenuItem icon={DocumentTextIcon} label="Logs" isExpanded={isExpanded} onClick={handlelogsclick} />
-          <MenuItem icon={Cog6ToothIcon} label="Settings" isExpanded={isExpanded} onClick={handlesettingsclick} />
+          <MenuItem icon={ChartPieIcon} label="Dashboard" isExpanded={isExpanded} onClick={handleDashboardClick} />
+          <MenuItem icon={UserPlusIcon} label="Add Members" isExpanded={isExpanded} onClick={handleAddMembersClick} />
+          <MenuItem icon={QueueListIcon} label="Items" isExpanded={isExpanded} onClick={handleItemsClick} />
+          <MenuItem icon={BanknotesIcon} label="Transaction Bills" isExpanded={isExpanded} onClick={handleTransactionBillsClick} />
+          <MenuItem icon={DocumentTextIcon} label="Logs" isExpanded={isExpanded} onClick={handleLogsClick} />
+          <MenuItem icon={Cog6ToothIcon} label="Settings" isExpanded={isExpanded} onClick={handleSettingsClick} />
         </nav>
 
         {/* Logout */}

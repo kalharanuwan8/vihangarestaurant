@@ -6,7 +6,9 @@ import BillingCart from "../components/BillingCart";
 import PrintBillModal from "../components/PrintBillModal";
 import HeldOrders from "./HeldOrders";
 import BilledOrders from "./BilledOrders";
-import axios from "../api/axios"; // ✅ Assumes axios baseURL is '/api'
+import Transaction from "./Transaction"; // ✅ NEW
+import TransactionBills from "./TransactionBills"; // ✅ NEW
+import axios from "../api/axios";
 
 const Cashier = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -16,7 +18,6 @@ const Cashier = () => {
   const [billType, setBillType] = useState(null);
   const navigate = useNavigate();
 
-  // ✅ Add product to cart
   const handleAddToCart = (product) => {
     setCartItems((prev) => {
       const exists = prev.find(
@@ -39,7 +40,6 @@ const Cashier = () => {
     });
   };
 
-  // ✅ Update quantity
   const handleQtyChange = (cartId, value, isDirect = false) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -55,18 +55,16 @@ const Cashier = () => {
     );
   };
 
-  // ✅ Remove item from cart
   const handleRemoveItem = (cartId) => {
     setCartItems((prev) => prev.filter((item) => item.cartId !== cartId));
   };
 
-  // ✅ Submit bill to backend
   const handleSubmitBill = async (type, action = "print") => {
     const payload = {
       billCode: `BILL-${Date.now()}`,
       billType: type,
       billItems: cartItems.map((item) => ({
-        item: item._id, // ✅ Correct field used
+        item: item._id,
         quantity: item.qty,
       })),
     };
@@ -92,7 +90,6 @@ const Cashier = () => {
         },
       ]);
 
-      // Clear cart
       setCartItems([]);
       setShowBill(false);
       setBillType(null);
@@ -101,7 +98,6 @@ const Cashier = () => {
     }
   };
 
-  // ✅ Save bill to hold
   const handleHold = () => {
     const newHold = {
       id: Date.now(),
@@ -112,7 +108,6 @@ const Cashier = () => {
     setCartItems([]);
   };
 
-  // ✅ Load held bill
   const handleSelectHold = (id) => {
     const bill = heldBills.find((b) => b.id === id);
     if (bill) {
@@ -143,12 +138,9 @@ const Cashier = () => {
               element={
                 <>
                   <div className="flex w-full gap-4">
-                    {/* Product Grid (left) */}
                     <div className="flex-grow bg-gray-50 min-h-screen">
                       <ProductGrid onAddToCart={handleAddToCart} />
                     </div>
-
-                    {/* Billing Cart (right) */}
                     <BillingCart
                       items={cartItems}
                       onQtyChange={handleQtyChange}
@@ -162,7 +154,6 @@ const Cashier = () => {
                     />
                   </div>
 
-                  {/* Print Modal */}
                   {showBill && (
                     <PrintBillModal
                       items={cartItems}
@@ -191,6 +182,10 @@ const Cashier = () => {
               path="billed"
               element={<BilledOrders billedBills={billedBills} />}
             />
+
+            {/* ✅ New Routes for Transactions */}
+            <Route path="transaction" element={<Transaction />} />
+            <Route path="transaction-bills" element={<TransactionBills />} />
           </Routes>
         </main>
       </div>

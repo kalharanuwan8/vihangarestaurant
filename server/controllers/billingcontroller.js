@@ -1,6 +1,7 @@
 import Bill from '../model/Bill.js';
 import Item from '../model/Item.js';
 
+// Create a new bill and save item snapshots
 export const createBill = async (req, res) => {
   try {
     const { billCode, billItems, billType } = req.body;
@@ -18,7 +19,7 @@ export const createBill = async (req, res) => {
         return res.status(404).json({ message: `Item with ID ${billItem.item} not found.` });
       }
 
-      // ✅ Only check stock and reduce if item has stock tracking (quantity !== null)
+      // ✅ Stock check and reduction only if quantity tracking is used
       if (item.quantity !== null) {
         if (item.quantity < billItem.quantity) {
           return res.status(400).json({
@@ -26,13 +27,15 @@ export const createBill = async (req, res) => {
           });
         }
 
-        // Reduce quantity
         item.quantity -= billItem.quantity;
         await item.save();
       }
 
+      // Save snapshot
       populatedBillItems.push({
         item: item._id,
+        itemName: item.itemName,
+        category: item.category || 'Unknown',
         quantity: billItem.quantity,
         priceAtSale: item.price
       });
@@ -61,21 +64,20 @@ export const createBill = async (req, res) => {
   }
 };
 
+// Get all bills without populating removed items
 export const getAllBills = async (req, res) => {
   try {
-    const bills = await Bill.find()
-      .populate('billItems.item', 'itemName category') // Show item names,catagory
-      .sort({ createdAt: -1 });
+    const bills = await Bill.find().sort({ createdAt: -1 });
     res.status(200).json(bills);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching bills', error: error.message });
   }
 };
 
+// Get a bill by ID
 export const getBillById = async (req, res) => {
   try {
-    const bill = await Bill.findById(req.params.id)
-      .populate('billItems.item', 'itemName');
+    const bill = await Bill.findById(req.params.id);
     if (!bill) {
       return res.status(404).json({ message: 'Bill not found' });
     }

@@ -1,54 +1,49 @@
 import mongoose from 'mongoose';
 
-const billSchema = new mongoose.Schema({
+const transBillSchema = new mongoose.Schema({
   billCode: {
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
   },
   billItems: [
     {
       item: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Item',
-        required: true
+        required: true,
       },
       itemName: {
         type: String,
-        required: true
+        required: true,
       },
       category: {
         type: String,
-        default: 'Unknown'
+        default: 'Unknown',
       },
       quantity: {
         type: Number,
         required: true,
-        min: 1
+        min: 1,
       },
       priceAtSale: {
         type: Number,
         required: true,
-        min: 0
-      }
-    }
+        min: 0,
+      },
+    },
   ],
   total: {
     type: Number,
     required: true,
-    min: 0
-  },
-  billType: {
-    type: String,
-    enum: ['Restaurant', 'Delivery'],
-    required: true
+    min: 0,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-const Bill = mongoose.model('Bill', billSchema);
-export default Bill;
+const TransBill = mongoose.model('TransBill', transBillSchema);
+export default TransBill;
