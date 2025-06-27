@@ -55,8 +55,8 @@ const Dashboard = () => {
       const type = bill.billType;
 
       bill.billItems.forEach(bi => {
-        const name = bi.item.itemName || bi.item._id;
-        const category = bi.item.category || "Unknown";
+        const name = bi.itemName || bi.item?.itemName || 'Unknown';
+        const category = bi.category || bi.item?.category || 'Unknown';
         const key = `${billDate}|${type}|${name}|${category}`;
 
         if (!map[key]) {

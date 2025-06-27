@@ -9,14 +9,14 @@ const BilledOrders = () => {
   const [filterDate, setFilterDate] = useState("");
   const [filterType, setFilterType] = useState("All");
 
-  // Fetch billed bills from backend
+  // ✅ Fetch billed bills from backend
   useEffect(() => {
     axios
       .get("/bills")
       .then((res) => {
         const formatted = res.data.map((bill) => {
           const items = bill.billItems.map((bi) => ({
-            name: bi.item?.itemName || "Unknown Item",
+            name: bi.itemName || bi.item?.itemName || "Unknown Item",
             qty: bi.quantity,
             price: bi.priceAtSale,
           }));
@@ -38,7 +38,7 @@ const BilledOrders = () => {
   const formatDate = (isoDate) =>
     new Date(isoDate).toISOString().split("T")[0];
 
-  // Group bills by date and filter
+  // ✅ Group and filter bills
   const groupedBills = useMemo(() => {
     const result = {};
 
@@ -54,7 +54,7 @@ const BilledOrders = () => {
       }
     });
 
-    return Object.entries(result).sort((a, b) => b[0].localeCompare(a[0])); // Sort by date descending
+    return Object.entries(result).sort((a, b) => b[0].localeCompare(a[0]));
   }, [billedBills, filterDate, filterType]);
 
   return (
