@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  PlusIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Sidebar from '../components/Sidebar';
 import HorizontalNavbar from '../components/HorizontalNavbar';
 import axios from '../api/axios';
@@ -14,12 +11,8 @@ function Items() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [newItem, setNewItem] = useState({
-    itemCode: '',
-    itemName: '',
-    category: '',
-    price: '',
-    quantity: '',
-    imagePath: ''
+    itemCode: '', itemName: '', category: '', price: '',
+    quantity: '', imagePath: ''
   });
   const [editingItemId, setEditingItemId] = useState(null);
 
@@ -40,33 +33,27 @@ function Items() {
 
   const filteredItems = useMemo(() => {
     return items
-      .filter((item) => selectedCategory === 'All' || item.category === selectedCategory)
-      .filter((item) => item.itemName.toLowerCase().includes(searchTerm.toLowerCase()));
+      .filter(item =>
+        (selectedCategory === 'All' || item.category === selectedCategory) &&
+        item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
   }, [searchTerm, selectedCategory, items]);
 
-  const categories = ['All', ...new Set(items.map((item) => item.category))];
+  const categories = ['All', ...new Set(items.map(item => item.category))];
 
   const openAddModal = () => {
-    setNewItem({
-      itemCode: '',
-      itemName: '',
-      category: '',
-      price: '',
-      quantity: '',
-      imagePath: ''
-    });
+    setNewItem({ itemCode: '', itemName: '', category: '', price: '', quantity: '', imagePath: '' });
     setEditingItemId(null);
     setShowModal(true);
   };
-
-  const openEditModal = (item) => {
+  const openEditModal = item => {
     setNewItem({
       itemCode: item.itemCode,
       itemName: item.itemName,
       category: item.category,
       price: item.price,
-      quantity: item.quantity || '',
-      imagePath: item.imagePath || ''
+      quantity: item.quantity ?? '',
+      imagePath: item.imagePath ?? ''
     });
     setEditingItemId(item._id);
     setShowModal(true);
@@ -78,7 +65,6 @@ function Items() {
       price: parseFloat(newItem.price),
       quantity: newItem.quantity ? parseInt(newItem.quantity) : undefined
     };
-
     try {
       if (editingItemId) {
         await axios.put(`/items/${editingItemId}`, payload);
@@ -89,7 +75,7 @@ function Items() {
       setShowModal(false);
     } catch (err) {
       console.error('Error saving item', err);
-      alert('Failed to save item. Make sure item code is unique and all fields are valid.');
+      alert('Failed to save item. Check uniqueness and validity.');
     }
   };
 
@@ -119,17 +105,17 @@ function Items() {
           <div className="flex gap-4 mb-4">
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search by name..."
               className="flex-1 border px-4 py-2 rounded"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
             <select
               className="border px-4 py-2 rounded"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={e => setSelectedCategory(e.target.value)}
             >
-              {categories.map((cat) => <option key={cat}>{cat}</option>)}
+              {categories.map(cat => <option key={cat}>{cat}</option>)}
             </select>
           </div>
 
@@ -137,22 +123,26 @@ function Items() {
             <table className="min-w-full bg-white shadow rounded">
               <thead className="bg-gray-200 text-gray-700">
                 <tr>
-                  <th className="py-2 px-4 text-left">Item Code</th>
+                  <th className="py-2 px-4 text-left">Code</th>
                   <th className="py-2 px-4 text-left">Name</th>
                   <th className="py-2 px-4 text-left">Category</th>
                   <th className="py-2 px-4 text-left">Price</th>
-                  <th className="py-2 px-4 text-left">Quantity</th>
-                  <th className="py-2 px-4 text-right">Action</th>
+                  <th className="py-2 px-4 text-left">Qty</th>
+                  <th className="py-2 px-4 text-left">Edited Field</th>
+                  <th className="py-2 px-4 text-left">Edited At</th>
+                  <th className="py-2 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredItems.map((item) => (
-                  <tr key={item._id} className="border-t">
+                {filteredItems.map(item => (
+                  <tr key={item._id} className="border-t hover:bg-gray-50">
                     <td className="py-2 px-4">{item.itemCode}</td>
                     <td className="py-2 px-4">{item.itemName}</td>
                     <td className="py-2 px-4">{item.category}</td>
                     <td className="py-2 px-4">Rs. {item.price}</td>
                     <td className="py-2 px-4">{item.quantity ?? '-'}</td>
+                    <td className="py-2 px-4">{item.lastEditedField || '-'}</td>
+                    <td className="py-2 px-4">{item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '-'}</td>
                     <td className="py-2 px-4 text-right">
                       <button
                         onClick={() => openEditModal(item)}
@@ -169,7 +159,6 @@ function Items() {
         </main>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
@@ -180,24 +169,17 @@ function Items() {
               </button>
             </div>
             <div className="space-y-3">
-              <input type="text" placeholder="Item Code" value={newItem.itemCode}
-                onChange={(e) => setNewItem({ ...newItem, itemCode: e.target.value })}
-                className="w-full border px-4 py-2 rounded" />
-              <input type="text" placeholder="Item Name" value={newItem.itemName}
-                onChange={(e) => setNewItem({ ...newItem, itemName: e.target.value })}
-                className="w-full border px-4 py-2 rounded" />
-              <input type="text" placeholder="Category" value={newItem.category}
-                onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                className="w-full border px-4 py-2 rounded" />
-              <input type="number" placeholder="Price" value={newItem.price}
-                onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-                className="w-full border px-4 py-2 rounded" />
-              <input type="number" placeholder="Quantity (optional)" value={newItem.quantity}
-                onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
-                className="w-full border px-4 py-2 rounded" />
-              <input type="text" placeholder="Image URL (optional)" value={newItem.imagePath}
-                onChange={(e) => setNewItem({ ...newItem, imagePath: e.target.value })}
-                className="w-full border px-4 py-2 rounded" />
+              {['itemCode', 'itemName', 'category', 'price', 'quantity', 'imagePath'].map(key => (
+                <input
+                  key={key}
+                  type={key === 'price' || key === 'quantity' ? 'number' : 'text'}
+                  placeholder={key.replace(/([A-Z])/g, ' $1')}
+                  value={newItem[key] || ''}
+                  onChange={e => setNewItem({ ...newItem, [key]: e.target.value })}
+                  className="w-full border px-4 py-2 rounded"
+                />
+              ))}
+
               <div className="flex justify-between">
                 {editingItemId && (
                   <button onClick={handleDeleteItem} className="bg-red-500 text-white px-4 py-2 rounded">Delete</button>

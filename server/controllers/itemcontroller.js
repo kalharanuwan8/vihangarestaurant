@@ -1,5 +1,6 @@
 import Item from '../model/Item.js';
 
+// CREATE
 export const createItem = async (req, res) => {
   try {
     const newItem = new Item(req.body);
@@ -13,6 +14,7 @@ export const createItem = async (req, res) => {
   }
 };
 
+// READ ALL
 export const getAllItems = async (req, res) => {
   try {
     const items = await Item.find();
@@ -22,6 +24,7 @@ export const getAllItems = async (req, res) => {
   }
 };
 
+// READ ONE
 export const getItemById = async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
@@ -32,15 +35,32 @@ export const getItemById = async (req, res) => {
   }
 };
 
+// UPDATE with lastEditedField tracking
 export const updateItemById = async (req, res) => {
   try {
-    const updatedItem = await Item.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!updatedItem) return res.status(404).json({ message: 'Item not found' });
-    res.status(200).json({ message: 'Item updated successfully', item: updatedItem });
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    const payload = req.body;
+    let lastEditedField = null;
+
+    // Compare fields to identify which changed
+    for (const key of Object.keys(payload)) {
+      if (payload[key] !== undefined && item[key] !== payload[key]) {
+        lastEditedField = key;
+        break; // only track first difference
+      }
+    }
+
+    // Apply changes
+    Object.assign(item, payload);
+    item.updatedAt = new Date();
+    if (lastEditedField) {
+      item.lastEditedField = lastEditedField;
+    }
+
+    await item.save();
+    res.status(200).json({ message: 'Item updated successfully', item });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).json({ message: 'Item code already exists.' });
@@ -49,6 +69,7 @@ export const updateItemById = async (req, res) => {
   }
 };
 
+// DELETE
 export const deleteItemById = async (req, res) => {
   try {
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
