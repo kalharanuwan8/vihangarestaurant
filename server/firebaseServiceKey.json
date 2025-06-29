@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "vihanga-restaurant",
+  "private_key_id": "49cd262f506639961700c82a9b8b066134c7987a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTtfpKdSP0LP3N\nS7i5qxuWPGcQSOFEhrJJRE4zVwGCGheKVXoyZo9tfAckyd8kL5qxUgH7QhEPx6Pp\n1RmojUDsv/QWt4GKfL5KOyX57/FC4oIkb53scyRmdplnbv10LPYv0cmur8wpulYH\ntR7e8y8UDkb988gKrpLaTB4HVIEY3lpmcGW8aJIfwAZH8SP9y4e5H+GaRCy29trP\n0FUgFvzVkJqQdnvnwYW/jWLOCmteAZPDQsB+JHQGicRaUsHRliKN5dThFlqxBmB8\nMFjvwqOWsbBCADPUoTzbIHcs3+VDqCgrJ0WGoXaxFuPVwdb5Uvt1el3DEBD36tXO\nfd6ZcqpzAgMBAAECggEABzlozrehQB4flFd8IzcihtrizXHJ4L5pQQodUlqACQIo\n7CXZ40m6pTVxQkvH2y1ArcJVok7xKW+vjorLXa627h09ZV+3rOkazopRfm419l6n\nquSgJ/G55paEyjxwVlGJHmfzO4xw1A+xYIFJX2Q+/APiCke8+22qQdwNE5pKRCCV\nAa+CoGX8ahHPZsN0cgmNPXvlS+W5LcOCgjS7D2BILrDj+X63W5JnJ0++lAjWpf+l\nc5r60dUZngE4WKi233IfpQCY5qB3/Cz4nK/KgyMt8MWHGBrWzmC5N1fPmt7FyE+b\n4fDppIWMBGzmV931aw+Ce16JvXQFRGpJg3TCWCJSYQKBgQD78DYwc4Z+uXjPfxg0\nHfINbs9WAWI9JoKlAISv4IMJTXuTtR1KPM4hSXev++rhB0T65JBv/k8YSKvrZjLE\nh9/7xmWyXjWdFpf8bO7HiSrobkFtYYP6Z55CCd5UthS70unCrK/iK1usIUHRmTdK\nxV0tJOe61ArRJhXxRVClq0CAgwKBgQDXH72ztixGmc20Qfn1KP+G/iLlSp5tFeOP\ntCNSDWZJ9jwtPMznr2eJqNie474VcTj6VYImIK1k2W9g/+ijVPfszaeGTl5mdCA6\n43Fu4FAZpFv6CapAsGnwAtw4q4+F4w68AshUgGqgyEbsETxeOIJa3QdstmwAd1Wb\nVzJvR3wrUQKBgFlT+ZLCU2y5THmd4bIQ8BMNOByRjwiJkAb7IRDPNQbmXyunKwR4\nfMnWp8ZRNx2kmzOuOPxMmjTNB5AGg3eliahW1xYgSzgwm6EX6q37F6ij9zTWP5pY\nhQd7Qkac7MsP5GxvGEnD/9QPUqwDfFRZmEj6beOTbWZs75jFb+vdxZgLAoGATuao\naFKHuLlOli+gowePeQ6a8+hDZRUjKqDSV5TskHIMrjbfnJZb7kSMdvJm1Gx7jm1w\nV9WiYxvQ2w3hYI6YhDUFnZ/+xasP6yligF0rY8xBo9qJpEJQCKSz6uEZueyGifSn\nTz7uXNw4DvtfXdtyDCuHPptFz4H1Vw1LRT89zpECgYEAyfxrrcoG+tkTFrSHNfLP\nnzNMocGTDYZy5q/jEWez5APwobZw+bpU85ueshPV9ywwHwRm7ZhVtjBvxFpUAh9b\nffqIF+Cfo4sC1HJi//r+JF+jXdoZJDPOaVWI7e4IMo+AP/Yp3LBodXGfA2FM08bn\nyAB+01pNH6Oa/BfsOegv3HQ=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@vihanga-restaurant.iam.gserviceaccount.com",
+  "client_id": "110085320851671242634",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40vihanga-restaurant.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

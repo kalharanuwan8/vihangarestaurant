@@ -9,27 +9,31 @@ const Login = () => {
 
   const navigate = useNavigate();
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await axios.post('http://localhost:5000/api/auth/login', {
-      email,
-      password,
-    });
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password,
+      });
 
-    const user = res.data.user;
+      const user = res.data.user;
 
-    if (user.isAdmin) {
-      navigate('/admin');
-    } else {
-      navigate('/cashier');
+      // Store full user info in localStorage as JSON string
+      localStorage.setItem('userData', JSON.stringify(user));
+
+      // Redirect based on user role
+      if (user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/cashier');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert(error.response?.data?.message || 'Login failed');
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    alert(error.response?.data?.message || 'Login failed');
-  }
-};
+  };
 
   const EyeIcon = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
