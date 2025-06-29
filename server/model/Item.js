@@ -25,12 +25,16 @@ const itemSchema = new mongoose.Schema({
   quantity: {
     type: Number,
     min: 0,
-    default: null // ✅ Optional quantity
+    default: null
   },
   imagePath: {
     type: String,
     trim: true,
     default: ''
+  },
+  lastEditedField: {
+    type: String,
+    default: null
   },
   createdAt: {
     type: Date,
@@ -42,11 +46,11 @@ const itemSchema = new mongoose.Schema({
   }
 });
 
+// Auto-update updatedAt on save
 itemSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
 const Item = mongoose.model('Item', itemSchema);
-
 export default Item;
