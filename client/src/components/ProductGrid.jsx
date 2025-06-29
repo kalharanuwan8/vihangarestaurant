@@ -77,6 +77,7 @@ const ProductGrid = ({ onAddToCart }) => {
                   _id: product._id, // ✅ Important fix: use _id not id
                   name: product.itemName,
                   price: product.price,
+                  quantity: product.quantity
                 })
               }
               className="relative group bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transition-transform transform hover:scale-105 hover:shadow-2xl hover:ring-4 hover:ring-gray-800"

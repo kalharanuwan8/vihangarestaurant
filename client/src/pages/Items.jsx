@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import Sidebar from '../components/Sidebar';
 import HorizontalNavbar from '../components/HorizontalNavbar';
 import axios from '../api/axios';
@@ -11,49 +13,51 @@ function Items() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [newItem, setNewItem] = useState({
-    itemCode: '', itemName: '', category: '', price: '',
-    quantity: '', imagePath: ''
+    itemCode: '', itemName: '', category: '', price: '', imagePath: '', newStock: ''
   });
   const [editingItemId, setEditingItemId] = useState(null);
 
   useEffect(() => {
-    fetchItems();
-  }, []);
+    let isMounted = true;
 
-  const fetchItems = async () => {
-    try {
-      const res = await axios.get('/items');
-      setItems(res.data);
-    } catch (err) {
-      console.error('Error fetching items', err);
-    }
-  };
+    const fetchItems = async () => {
+      try {
+        const res = await axios.get('/items');
+        if (isMounted) setItems(res.data);
+      } catch (err) {
+        if (isMounted) console.error('Error fetching items', err);
+      }
+    };
+
+    fetchItems();
+    return () => { isMounted = false; };
+  }, []);
 
   const toggleSidebar = () => setSidebarExpanded(!isSidebarExpanded);
 
   const filteredItems = useMemo(() => {
-    return items
-      .filter(item =>
-        (selectedCategory === 'All' || item.category === selectedCategory) &&
-        item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-  }, [searchTerm, selectedCategory, items]);
+    return items.filter(item =>
+      (selectedCategory === 'All' || item.category === selectedCategory) &&
+      item.itemName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [items, searchTerm, selectedCategory]);
 
-  const categories = ['All', ...new Set(items.map(item => item.category))];
+  const categories = ['All', ...new Set(items.map(i => i.category))];
 
   const openAddModal = () => {
-    setNewItem({ itemCode: '', itemName: '', category: '', price: '', quantity: '', imagePath: '' });
+    setNewItem({ itemCode: '', itemName: '', category: '', price: '', imagePath: '', newStock: '' });
     setEditingItemId(null);
     setShowModal(true);
   };
+
   const openEditModal = item => {
     setNewItem({
       itemCode: item.itemCode,
       itemName: item.itemName,
       category: item.category,
       price: item.price,
-      quantity: item.quantity ?? '',
-      imagePath: item.imagePath ?? ''
+      imagePath: item.imagePath || '',
+      newStock: ''
     });
     setEditingItemId(item._id);
     setShowModal(true);
@@ -61,32 +65,67 @@ function Items() {
 
   const handleSaveItem = async () => {
     const payload = {
-      ...newItem,
+      itemCode: newItem.itemCode,
+      itemName: newItem.itemName,
+      category: newItem.category,
       price: parseFloat(newItem.price),
-      quantity: newItem.quantity ? parseInt(newItem.quantity) : undefined
+      imagePath: newItem.imagePath,
+      newStock: newItem.newStock ? parseInt(newItem.newStock) : 0,
     };
+
     try {
       if (editingItemId) {
         await axios.put(`/items/${editingItemId}`, payload);
       } else {
-        await axios.post('/items', payload);
+        await axios.post('/items', {
+          ...payload,
+          quantity: payload.newStock
+        });
       }
-      fetchItems();
+      const res = await axios.get('/items');
+      setItems(res.data);
       setShowModal(false);
     } catch (err) {
-      console.error('Error saving item', err);
-      alert('Failed to save item. Check uniqueness and validity.');
+      console.error(err);
+      alert('Failed to save item.');
     }
   };
 
   const handleDeleteItem = async () => {
     try {
       await axios.delete(`/items/${editingItemId}`);
-      fetchItems();
+      const res = await axios.get('/items');
+      setItems(res.data);
       setShowModal(false);
     } catch (err) {
-      console.error('Error deleting item', err);
+      console.error(err);
     }
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Item Status Report', 14, 20);
+
+    const head = [['Code', 'Name', 'Category', 'Price', 'Qty', 'Edited Field', 'Edited At']];
+    const body = filteredItems.map(item => [
+      item.itemCode,
+      item.itemName,
+      item.category,
+      item.price.toFixed(2),
+      item.quantity ?? '-',
+      item.lastEditedField || '-',
+      item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '-'
+    ]);
+
+    autoTable(doc, {
+      head,
+      body,
+      startY: 30,
+      styles: { fontSize: 8 }
+    });
+
+    doc.save(`item_status_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   return (
@@ -97,9 +136,14 @@ function Items() {
         <main className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Manage Items</h1>
-            <button onClick={openAddModal} className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded">
-              <PlusIcon className="h-5 w-5 mr-1" /> Add New Item
-            </button>
+            <div className="flex gap-3">
+              <button onClick={downloadPDF} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                📄 Download Item Status PDF
+              </button>
+              <button onClick={openAddModal} className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded">
+                <PlusIcon className="h-5 w-5 mr-1" /> Add New Item
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-4 mb-4">
@@ -123,13 +167,13 @@ function Items() {
             <table className="min-w-full bg-white shadow rounded">
               <thead className="bg-gray-200 text-gray-700">
                 <tr>
-                  <th className="py-2 px-4 text-left">Code</th>
-                  <th className="py-2 px-4 text-left">Name</th>
-                  <th className="py-2 px-4 text-left">Category</th>
-                  <th className="py-2 px-4 text-left">Price</th>
-                  <th className="py-2 px-4 text-left">Qty</th>
-                  <th className="py-2 px-4 text-left">Edited Field</th>
-                  <th className="py-2 px-4 text-left">Edited At</th>
+                  <th className="py-2 px-4">Code</th>
+                  <th className="py-2 px-4">Name</th>
+                  <th className="py-2 px-4">Category</th>
+                  <th className="py-2 px-4">Price</th>
+                  <th className="py-2 px-4">Qty</th>
+                  <th className="py-2 px-4">Edited Field</th>
+                  <th className="py-2 px-4">Edited At</th>
                   <th className="py-2 px-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -139,7 +183,7 @@ function Items() {
                     <td className="py-2 px-4">{item.itemCode}</td>
                     <td className="py-2 px-4">{item.itemName}</td>
                     <td className="py-2 px-4">{item.category}</td>
-                    <td className="py-2 px-4">Rs. {item.price}</td>
+                    <td className="py-2 px-4">{item.price.toFixed(2)}</td>
                     <td className="py-2 px-4">{item.quantity ?? '-'}</td>
                     <td className="py-2 px-4">{item.lastEditedField || '-'}</td>
                     <td className="py-2 px-4">{item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '-'}</td>
@@ -169,20 +213,28 @@ function Items() {
               </button>
             </div>
             <div className="space-y-3">
-              {['itemCode', 'itemName', 'category', 'price', 'quantity', 'imagePath'].map(key => (
+              {['itemCode', 'itemName', 'category', 'price', 'imagePath'].map(key => (
                 <input
                   key={key}
-                  type={key === 'price' || key === 'quantity' ? 'number' : 'text'}
+                  type={key === 'price' ? 'number' : 'text'}
                   placeholder={key.replace(/([A-Z])/g, ' $1')}
                   value={newItem[key] || ''}
                   onChange={e => setNewItem({ ...newItem, [key]: e.target.value })}
                   className="w-full border px-4 py-2 rounded"
                 />
               ))}
-
+              <input
+                type="number"
+                placeholder="Add New Stock"
+                value={newItem.newStock}
+                onChange={e => setNewItem({ ...newItem, newStock: e.target.value })}
+                className="w-full border px-4 py-2 rounded"
+              />
               <div className="flex justify-between">
                 {editingItemId && (
-                  <button onClick={handleDeleteItem} className="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+                  <button onClick={handleDeleteItem} className="bg-red-500 text-white px-4 py-2 rounded">
+                    Delete
+                  </button>
                 )}
                 <button onClick={handleSaveItem} className="bg-indigo-600 text-white px-4 py-2 rounded w-full">
                   {editingItemId ? 'Update' : 'Add'}

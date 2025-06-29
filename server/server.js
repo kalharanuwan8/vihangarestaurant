@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import './cron/dailyResetJob.js';
 import userRoutes from './routes/UserRoute.js'; // 🆕 Import user routes
 import itemRoutes from './routes/ItemRoute.js'; // 🆕 Import item routes
 
