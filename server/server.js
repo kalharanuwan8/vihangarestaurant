@@ -9,6 +9,8 @@ import transbillRoutes from './routes/TransbillRoute.js';
 
 import billRoutes from './routes/BillRoute.js'; // 🆕 Import bill routes
 import authRoutes from './routes/AuthRoute.js'; // 🆕 Import auth routes
+import syncRoutes from './routes/SyncRoute.js'; // 🆕 Import sync routes
+import { testFirestoreConnection } from './testFirestoreConnection.js';
 
 dotenv.config();
 
@@ -38,7 +40,7 @@ mongoose.connect(MONGO_URL, {
 app.get('/', (req, res) => {
   res.send('Server is running...');
 });
-
+testFirestoreConnection(); // Test Firestore connection on server start
 // 🆕 User API routes
 app.use('/api/users', userRoutes);
 app.use('/api/items', itemRoutes); // 🆕 Item API routes
@@ -47,6 +49,7 @@ app.use('/api/bills', billRoutes); // 🆕 Bill API routes
 app.use('/api/transbills', transbillRoutes);
 
 app.use('/api/auth', authRoutes); // 🆕 Auth API routes
+app.use('/api', syncRoutes); // 🆕 Sync API routes
 
 
 
