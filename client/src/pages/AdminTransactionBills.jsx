@@ -103,7 +103,7 @@ const AdminTransactionBills = () => {
         <main className="flex-1 overflow-x-auto overflow-y-auto p-8 space-y-8">
           <div className="flex justify-between items-center border-b border-gray-300 pb-3">
             <h1 className="text-3xl font-semibold text-gray-800">
-              Grouped Transaction Summary
+              Transaction Bills Summary
             </h1>
             <div className="flex gap-4 items-center">
               <input
