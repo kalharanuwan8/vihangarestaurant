@@ -50,6 +50,5 @@ Thumbs.db
 # --------------------
 # Firebase service accounts or private keys (if any)
 # --------------------
-firebaseServiceKey.json
-firebaseServiceKey.json
-firebaseAdmin.js
+server/firebaseServiceKey.json
+server/firebaseAdmin.js
