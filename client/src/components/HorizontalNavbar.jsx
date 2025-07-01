@@ -4,15 +4,18 @@ import {
   ChevronDownIcon,
   ArrowRightOnRectangleIcon,
   CalculatorIcon,
+  ArrowPathIcon,
   XMarkIcon,
   UserCircleIcon
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import Calculator from './Calculator';
+import axios from 'axios';
 
 const HorizontalNavbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const dropdownRef = useRef();
   const navigate = useNavigate();
 
@@ -25,6 +28,19 @@ const HorizontalNavbar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleSync = async () => {
+    try {
+      setSyncing(true);
+      const response = await axios.get('http://localhost:5000/api/syncusers?token=mySecretToken123');
+      alert('✅ Sync successful!');
+    } catch (error) {
+      console.error('Sync failed:', error);
+      alert('❌ Sync failed. Check console for details.');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   return (
     <>
@@ -43,6 +59,16 @@ const HorizontalNavbar = () => {
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
+          {/* Sync Button */}
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="p-2 bg-green-100 hover:bg-green-200 rounded-lg transition"
+            title="Sync with Database"
+          >
+            <ArrowPathIcon className={`h-5 w-5 ${syncing ? 'animate-spin text-green-600' : 'text-green-600'}`} />
+          </button>
+
           {/* Calculator Button */}
           <button
             onClick={() => setShowCalculator(true)}

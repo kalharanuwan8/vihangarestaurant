@@ -5,7 +5,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Sidebar from '../components/Sidebar';
 import HorizontalNavbar from '../components/HorizontalNavbar';
-import axios from '../api/axios';
+// import axios from '../api/axios'; // removed API
 
 function Items() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -24,17 +24,38 @@ function Items() {
   const [editingItemId, setEditingItemId] = useState(null);
 
   useEffect(() => {
-    fetchItems();
+    // Set dummy items instead of fetching from DB
+    const dummyItems = [
+      {
+        _id: '1',
+        itemCode: 'ITM001',
+        itemName: 'Chicken Burger',
+        category: 'Food',
+        price: 350,
+        quantity: 10,
+        imagePath: '',
+      },
+      {
+        _id: '2',
+        itemCode: 'ITM002',
+        itemName: 'Coca Cola',
+        category: 'Beverages',
+        price: 150,
+        quantity: 25,
+        imagePath: '',
+      },
+      {
+        _id: '3',
+        itemCode: 'ITM003',
+        itemName: 'Cheese Pizza',
+        category: 'Food',
+        price: 800,
+        quantity: 5,
+        imagePath: '',
+      }
+    ];
+    setItems(dummyItems);
   }, []);
-
-  const fetchItems = async () => {
-    try {
-      const res = await axios.get('/items');
-      setItems(res.data);
-    } catch (err) {
-      console.error('Error fetching items', err);
-    }
-  };
 
   const toggleSidebar = () => setSidebarExpanded(!isSidebarExpanded);
 
@@ -60,47 +81,32 @@ function Items() {
   };
 
   const openEditModal = (item) => {
-    setNewItem({
-      itemCode: item.itemCode,
-      itemName: item.itemName,
-      category: item.category,
-      price: item.price,
-      quantity: item.quantity || '',
-      imagePath: item.imagePath || ''
-    });
+    setNewItem({ ...item });
     setEditingItemId(item._id);
     setShowModal(true);
   };
 
-  const handleSaveItem = async () => {
+  const handleSaveItem = () => {
     const payload = {
       ...newItem,
       price: parseFloat(newItem.price),
       quantity: newItem.quantity ? parseInt(newItem.quantity) : undefined
     };
 
-    try {
-      if (editingItemId) {
-        await axios.put(`/items/${editingItemId}`, payload);
-      } else {
-        await axios.post('/items', payload);
-      }
-      fetchItems();
-      setShowModal(false);
-    } catch (err) {
-      console.error('Error saving item', err);
-      alert('Failed to save item. Make sure item code is unique and all fields are valid.');
+    if (editingItemId) {
+      setItems((prev) =>
+        prev.map((item) => (item._id === editingItemId ? { ...payload, _id: editingItemId } : item))
+      );
+    } else {
+      setItems((prev) => [...prev, { ...payload, _id: Date.now().toString() }]);
     }
+
+    setShowModal(false);
   };
 
-  const handleDeleteItem = async () => {
-    try {
-      await axios.delete(`/items/${editingItemId}`);
-      fetchItems();
-      setShowModal(false);
-    } catch (err) {
-      console.error('Error deleting item', err);
-    }
+  const handleDeleteItem = () => {
+    setItems((prev) => prev.filter((item) => item._id !== editingItemId));
+    setShowModal(false);
   };
 
   return (

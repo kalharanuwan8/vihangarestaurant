@@ -18,6 +18,7 @@ import TransactionBills from "./pages/TransactionBills";
 
 
 
+
 function App() {
   const [role, setRole] = useState(null);
 
@@ -40,6 +41,9 @@ function App() {
         <Route path="/logs" element={<Logs />} />
         <Route path='/mobile' element={<Adminmobile />} />  
         <Route path="/settings" element={<Settings />} />
+    
+        
+        {/* Add more routes as needed */}
       </Routes>
     </Router>
   );
