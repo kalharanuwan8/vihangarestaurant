@@ -19,7 +19,11 @@ export const createTransBill = async (req, res) => {
         return res.status(404).json({ message: `Item not found: ${billItem.item}` });
       }
 
-      // No stock reduction for transaction bills
+      // ✅ Reduce item quantity even if it goes negative
+      if (item.quantity !== null && item.quantity !== undefined) {
+        item.quantity = (item.quantity || 0) - billItem.quantity;
+        await item.save();
+      }
 
       snapshotItems.push({
         item: item._id,

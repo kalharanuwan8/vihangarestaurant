@@ -5,48 +5,47 @@ const itemSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
   },
   itemName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   category: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   price: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   quantity: {
     type: Number,
-    min: 0,
-    default: null
+    default: 0, // ✅ Allow negative for billing scenarios
   },
   imagePath: {
     type: String,
     trim: true,
-    default: ''
+    default: '',
   },
   lastEditedField: {
     type: String,
-    default: null
+    default: null,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-// Auto-update updatedAt on save
+// Auto-update `updatedAt`
 itemSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();

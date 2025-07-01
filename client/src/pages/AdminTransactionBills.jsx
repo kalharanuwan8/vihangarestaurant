@@ -10,9 +10,7 @@ const AdminTransactionBills = () => {
   const [filterDate, setFilterDate] = useState("");
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
 
-  const toggleSidebar = () => {
-    setSidebarExpanded(!isSidebarExpanded);
-  };
+  const toggleSidebar = () => setSidebarExpanded(!isSidebarExpanded);
 
   useEffect(() => {
     axios.get("/transbills")
@@ -63,17 +61,18 @@ const AdminTransactionBills = () => {
 
     groupedByDate.forEach(([date, items]) => {
       doc.setFontSize(14);
-     doc.text(`Date: ${date}`, 14, startY);
+      doc.text(`Date: ${date}`, 14, startY);
       startY += 8;
 
       const itemRows = Object.values(items).map((item) => [
         item.itemName,
+        `Rs. ${(item.totalRevenue / item.totalQty).toFixed(2)}`, // Unit Price
         item.totalQty,
         `Rs. ${item.totalRevenue.toFixed(2)}`
       ]);
 
       autoTable(doc, {
-        head: [["Item Name", "Total Quantity", "Total Revenue"]],
+        head: [["Item Name", "Unit Price", "Total Quantity", "Total Revenue"]],
         body: itemRows,
         startY,
         styles: { fontSize: 10 },
@@ -104,7 +103,7 @@ const AdminTransactionBills = () => {
         <main className="flex-1 overflow-x-auto overflow-y-auto p-8 space-y-8">
           <div className="flex justify-between items-center border-b border-gray-300 pb-3">
             <h1 className="text-3xl font-semibold text-gray-800">
-              Grouped Transaction Summary
+              Transaction Bills Summary
             </h1>
             <div className="flex gap-4 items-center">
               <input
@@ -140,6 +139,7 @@ const AdminTransactionBills = () => {
                       <thead className="bg-indigo-100 text-indigo-700 text-xs uppercase font-semibold">
                         <tr>
                           <th className="px-6 py-3 text-left">Item Name</th>
+                          <th className="px-6 py-3 text-center">Unit Price</th>
                           <th className="px-6 py-3 text-center">Total Qty</th>
                           <th className="px-6 py-3 text-right">Revenue</th>
                         </tr>
@@ -151,6 +151,9 @@ const AdminTransactionBills = () => {
                             className="border-t border-gray-100 hover:bg-indigo-50 transition"
                           >
                             <td className="px-6 py-4 font-medium">{item.itemName}</td>
+                            <td className="px-6 py-4 text-center">
+                              Rs. {(item.totalRevenue / item.totalQty).toFixed(2)}
+                            </td>
                             <td className="px-6 py-4 text-center">{item.totalQty}</td>
                             <td className="px-6 py-4 text-right text-indigo-600 font-semibold">
                               Rs. {item.totalRevenue.toFixed(2)}
@@ -159,6 +162,7 @@ const AdminTransactionBills = () => {
                         ))}
                         <tr className="bg-gray-100 font-bold text-indigo-800 border-t">
                           <td className="px-6 py-3 text-left">Grand Total</td>
+                          <td></td>
                           <td></td>
                           <td className="px-6 py-3 text-right">
                             Rs. {dayTotal.toFixed(2)}

@@ -19,19 +19,13 @@ export const createBill = async (req, res) => {
         return res.status(404).json({ message: `Item with ID ${billItem.item} not found.` });
       }
 
-      // ✅ Stock check and reduction only if quantity tracking is used
-      if (item.quantity !== null) {
-        if (item.quantity < billItem.quantity) {
-          return res.status(400).json({
-            message: `Not enough stock for "${item.itemName}". Only ${item.quantity} available.`
-          });
-        }
-
-        item.quantity -= billItem.quantity;
+      // ✅ Allow stock to go negative
+      if (item.quantity !== null && item.quantity !== undefined) {
+        item.quantity = (item.quantity || 0) - billItem.quantity;
         await item.save();
       }
 
-      // Save snapshot
+      // Save item snapshot for bill
       populatedBillItems.push({
         item: item._id,
         itemName: item.itemName,
