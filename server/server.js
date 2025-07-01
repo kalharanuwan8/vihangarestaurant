@@ -7,6 +7,7 @@ import userRoutes from './routes/UserRoute.js'; // 🆕 Import user routes
 import itemRoutes from './routes/ItemRoute.js'; // 🆕 Import item routes
 
 import transbillRoutes from './routes/TransbillRoute.js';
+import itemResetRoute from './routes/itemResetRoute.js';
 
 import billRoutes from './routes/BillRoute.js'; // 🆕 Import bill routes
 import authRoutes from './routes/AuthRoute.js'; // 🆕 Import auth routes
@@ -48,6 +49,7 @@ app.use('/api/items', itemRoutes); // 🆕 Item API routes
 app.use('/api/bills', billRoutes); // 🆕 Bill API routes
 
 app.use('/api/transbills', transbillRoutes);
+app.use('/api', itemResetRoute);
 
 app.use('/api/auth', authRoutes); // 🆕 Auth API routes
 app.use('/api', syncRoutes); // 🆕 Sync API routes
