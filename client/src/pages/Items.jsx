@@ -13,7 +13,7 @@ function Items() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [newItem, setNewItem] = useState({
-    itemCode: '', itemName: '', category: '', price: '', imagePath: '', newStock: ''
+    itemCode: '', itemName: '', category: '', price: '', imageFileName: '', newStock: ''
   });
   const [editingItemId, setEditingItemId] = useState(null);
 
@@ -35,18 +35,19 @@ function Items() {
   const categories = ['All', ...new Set(items.map(i => i.category))];
 
   const openAddModal = () => {
-    setNewItem({ itemCode: '', itemName: '', category: '', price: '', imagePath: '', newStock: '' });
+    setNewItem({ itemCode: '', itemName: '', category: '', price: '', imageFileName: '', newStock: '' });
     setEditingItemId(null);
     setShowModal(true);
   };
 
-  const openEditModal = item => {
+  const openEditModal = (item) => {
+    const fileName = item.imagePath ? item.imagePath.split("\\").pop().split("/").pop() : '';
     setNewItem({
       itemCode: item.itemCode,
       itemName: item.itemName,
       category: item.category,
       price: item.price,
-      imagePath: item.imagePath || '',
+      imageFileName: fileName,
       newStock: ''
     });
     setEditingItemId(item._id);
@@ -54,11 +55,16 @@ function Items() {
   };
 
   const handleSaveItem = async () => {
+    const fixedImagePath = `C:/Users/vmedi/Desktop/images/${newItem.imageFileName}`;
+
     const payload = {
       ...newItem,
+      imagePath: fixedImagePath,
       price: parseFloat(newItem.price),
       newStock: newItem.newStock ? parseInt(newItem.newStock) : 0,
     };
+
+    delete payload.imageFileName;
 
     try {
       if (editingItemId) {
@@ -194,7 +200,7 @@ function Items() {
               </button>
             </div>
             <div className="space-y-4">
-              {['itemCode', 'itemName', 'category', 'price', 'imagePath'].map(key => (
+              {['itemCode', 'itemName', 'category', 'price'].map(key => (
                 <div key={key}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{key.replace(/([A-Z])/g, ' $1')}</label>
                   <input
@@ -205,6 +211,19 @@ function Items() {
                   />
                 </div>
               ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Image File Name (e.g. Rice.jpg)</label>
+                <input
+                  type="text"
+                  value={newItem.imageFileName}
+                  onChange={e => setNewItem({ ...newItem, imageFileName: e.target.value })}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm shadow-sm"
+                  placeholder="Rice.jpg"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Saved path: <code>C:/Users/vmedi/Desktop/images/[filename]</code>
+                </p>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Add New Stock</label>
                 <input

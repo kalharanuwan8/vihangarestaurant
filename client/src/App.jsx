@@ -11,12 +11,10 @@ import Settings from "./pages/Settings";
 import BilledOrders from "./pages/BilledOrders";
 import HeldOrders from "./pages/HeldOrders";
 import Logs from "./pages/Logs";
-import Adminmobile from "./pages/Adminmobile"; // ✅ Ensure this is correctly added
+import Adminmobile from "./pages/Adminmobile";
 import Transaction from "./pages/Transaction";
 import TransactionBills from "./pages/TransactionBills";
-
-
-
+import PrintWindow from "./pages/PrintWindow"; // ✅ New page for thermal printing
 
 function App() {
   const [role, setRole] = useState(null);
@@ -27,19 +25,25 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
 
-        {/* Nest all cashier-related routes inside Cashier */}
+        {/* Cashier Panel Routes */}
         <Route path="/cashier/*" element={<Cashier />} />
+
+        {/* Admin Panel Routes */}
         <Route path="/itemsmenu" element={<Items />} />
         <Route path="/addmembers" element={<Addmembers />} />
         <Route path="/transbills" element={<AdminTransactionBills />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/billed" element={<BilledOrders />} />
-        <Route path ="/held" element={<HeldOrders />} />
+        <Route path="/held" element={<HeldOrders />} />
         <Route path="/transaction" element={<Transaction />} />
         <Route path="/transaction-bills" element={<TransactionBills />} />
         <Route path="/logs" element={<Logs />} />
-        <Route path='/mobile' element={<Adminmobile />} />  
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/mobile" element={<Adminmobile />} />
+
+        {/* ✅ Thermal print route (opens in new tab) */}
+        <Route path="/print-window" element={<PrintWindow />} />
+        <Route path="/reprint" element={<PrintWindow />} />
+
       </Routes>
     </Router>
   );

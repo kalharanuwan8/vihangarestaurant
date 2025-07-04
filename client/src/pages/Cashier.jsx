@@ -6,8 +6,8 @@ import BillingCart from "../components/BillingCart";
 import PrintBillModal from "../components/PrintBillModal";
 import HeldOrders from "./HeldOrders";
 import BilledOrders from "./BilledOrders";
-import Transaction from "./Transaction"; // ✅ NEW
-import TransactionBills from "./TransactionBills"; // ✅ NEW
+import Transaction from "./Transaction";
+import TransactionBills from "./TransactionBills";
 import axios from "../api/axios";
 
 const Cashier = () => {
@@ -60,43 +60,48 @@ const Cashier = () => {
   };
 
   const handleSubmitBill = async (type, action = "print") => {
-    const payload = {
-      billCode: `BILL-${Date.now()}`,
-      billType: type,
-      billItems: cartItems.map((item) => ({
-        item: item._id,
-        quantity: item.qty,
-      })),
-    };
-
-    try {
-      const res = await axios.post("/bills", payload);
-      const savedBill = res.data.bill;
-
-      const enrichedItems = savedBill.billItems.map((bItem) => {
-        const match = cartItems.find((c) => c._id === bItem.item);
-        return {
-          name: match?.name || match?.itemName || "Unnamed Item",
-          qty: bItem.quantity,
-          price: match?.price || bItem.priceAtSale,
-        };
-      });
-
-      setBilledBills((prev) => [
-        ...prev,
-        {
-          ...savedBill,
-          items: enrichedItems,
-        },
-      ]);
-
-      setCartItems([]);
-      setShowBill(false);
-      setBillType(null);
-    } catch (error) {
-      console.error("❌ Error saving bill:", error.response?.data || error.message);
-    }
+  const payload = {
+    billCode: `BILL-${Date.now()}`,
+    billType: type,
+    billItems: cartItems.map((item) => ({
+      item: item._id,
+      quantity: item.qty,
+    })),
   };
+
+  try {
+    const res = await axios.post("/bills", payload);
+    const savedBill = res.data.bill;
+
+    const enrichedItems = savedBill.billItems.map((bItem) => {
+      const match = cartItems.find((c) => c._id === bItem.item);
+      return {
+        name: match?.name || match?.itemName || "Unnamed Item",
+        qty: bItem.quantity,
+        price: match?.price || bItem.priceAtSale,
+      };
+    });
+
+    setBilledBills((prev) => [
+      ...prev,
+      {
+        ...savedBill,
+        items: enrichedItems,
+      },
+    ]);
+
+    setCartItems([]);
+    setShowBill(false);
+    setBillType(null);
+
+    return savedBill; // ✅ RETURN the bill
+  } catch (error) {
+    console.error("❌ Error saving bill:", error.response?.data || error.message);
+    return null;
+  }
+};
+
+
 
   const handleHold = () => {
     const newHold = {
@@ -153,17 +158,22 @@ const Cashier = () => {
                       onSaveBill={(type) => handleSubmitBill(type, "save")}
                     />
                   </div>
+                      {showBill && (
+                        <PrintBillModal
+                          items={cartItems}
+                          total={cartItems.reduce((t, i) => t + i.price * i.qty, 0)}
+                          billType={billType}
+                          onClose={handleClosePrintModal}
+                          onSave={async () => {
+                            console.log("📤 Cashier: handleSubmitBill called for", billType);
+                            const result = await handleSubmitBill(billType, "print");
+                            console.log("✅ Cashier: handleSubmitBill returned:", result);
+                            return result;
+                          }}
+                        />
+                      )}
 
-                  {showBill && (
-                    <PrintBillModal
-                      items={cartItems}
-                      total={cartItems.reduce((t, i) => t + i.price * i.qty, 0)}
-                      billType={billType}
-                      onClose={handleClosePrintModal}
-                      onSave={() => handleSubmitBill(billType, "save")}
-                      onPrint={() => handleSubmitBill(billType, "print")}
-                    />
-                  )}
+
                 </>
               }
             />
@@ -183,7 +193,6 @@ const Cashier = () => {
               element={<BilledOrders billedBills={billedBills} />}
             />
 
-            {/* ✅ New Routes for Transactions */}
             <Route path="transaction" element={<Transaction />} />
             <Route path="transaction-bills" element={<TransactionBills />} />
           </Routes>

@@ -57,6 +57,12 @@ const BilledOrders = () => {
     return Object.entries(result).sort((a, b) => b[0].localeCompare(a[0]));
   }, [billedBills, filterDate, filterType]);
 
+  // ✅ Reprint handler
+  const handleReprint = (bill) => {
+    localStorage.setItem("billToPrint", JSON.stringify(bill));
+    window.open("/reprint", "_blank", "width=400,height=600");
+  };
+
   return (
     <div className="relative min-h-screen flex bg-gray-100">
       <SidebarCash isExpanded={true} />
@@ -130,6 +136,14 @@ const BilledOrders = () => {
                       <div className="border-t pt-2 mt-3 text-right text-sm font-bold text-blue-800">
                         Total: Rs. {total.toFixed(2)}
                       </div>
+
+                      {/* 🖨 Reprint Button */}
+                      <button
+                        onClick={() => handleReprint({ ...bill, total })}
+                        className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm"
+                      >
+                        🖨 Reprint Bill
+                      </button>
                     </div>
                   );
                 })}
