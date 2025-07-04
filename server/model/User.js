@@ -1,5 +1,5 @@
-// backend/models/user.js
 import mongoose from 'mongoose';
+import Log from './Log.js';
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-const User = mongoose.model('User', userSchema);
+// ✅ Log user creation
+userSchema.post('save', async function (doc) {
+  if (doc.__userEmail) {
+    await Log.create({
+      actionType: 'Create User',
+      description: `Created new user account (${doc.email})`,
+      userEmail: doc.__userEmail
+    });
+  }
+});
 
+const User = mongoose.model('User', userSchema);
 export default User;

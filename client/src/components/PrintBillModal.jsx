@@ -128,7 +128,7 @@ const handlePrintAndSave = async () => {
             onClick={onClose}
             className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-1 rounded"
           >
-            ↩️ Back to Bill
+            ↩ Back to Bill
           </button>
         </div>
       </div>

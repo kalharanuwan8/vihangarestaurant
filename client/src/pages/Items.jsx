@@ -55,7 +55,11 @@ function Items() {
   };
 
   const handleSaveItem = async () => {
-    const fixedImagePath = `C:/Users/vmedi/Desktop/images/${newItem.imageFileName}`;
+
+    const fixedImagePath = `C:/Users/ADMIN/Desktop/images/${newItem.imageFileName}`;
+
+   
+
 
     const payload = {
       ...newItem,
@@ -190,6 +194,8 @@ function Items() {
         </main>
       </div>
 
+
+
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-full max-w-md shadow-lg p-6">
@@ -253,6 +259,7 @@ function Items() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

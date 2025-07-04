@@ -7,8 +7,10 @@ export const createItem = async (req, res) => {
 
     const newItem = new Item({
       ...rest,
-      quantity: newStock ?? 0, // use newStock to set quantity on creation
+      quantity: newStock ?? 0,
     });
+
+    newItem.__userEmail = req.headers['x-user-email'] || 'system';
 
     await newItem.save();
     res.status(201).json({ message: 'Item created successfully', item: newItem });
@@ -50,7 +52,6 @@ export const updateItemById = async (req, res) => {
     const { newStock, ...payload } = req.body;
     let lastEditedField = null;
 
-    // Update fields and detect first change
     for (const key in payload) {
       if (payload[key] !== undefined && item[key] !== payload[key]) {
         item[key] = payload[key];
@@ -58,16 +59,15 @@ export const updateItemById = async (req, res) => {
       }
     }
 
-    // Handle stock addition
     if (newStock && !isNaN(newStock)) {
       item.quantity = (item.quantity || 0) + parseInt(newStock);
       lastEditedField = 'quantity';
     }
 
     item.updatedAt = new Date();
-    if (lastEditedField) {
-      item.lastEditedField = lastEditedField;
-    }
+    item.lastEditedField = lastEditedField;
+
+    item.__userEmail = req.headers['x-user-email'] || 'system';
 
     await item.save();
     res.status(200).json({ message: 'Item updated successfully', item });
@@ -82,8 +82,16 @@ export const updateItemById = async (req, res) => {
 // DELETE
 export const deleteItemById = async (req, res) => {
   try {
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    item.__userEmail = req.headers['x-user-email'] || 'system';
+
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
-    if (!deletedItem) return res.status(404).json({ message: 'Item not found' });
+
+    // Manually trigger logging hook
+    await Item.hooks.execPost('findOneAndDelete', deletedItem);
+
     res.status(200).json({ message: 'Item deleted successfully', item: deletedItem });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting item', error: error.message });

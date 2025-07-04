@@ -36,4 +36,5 @@ const PrintWindow = () => {
   );
 };
 
+
 export default PrintWindow;
