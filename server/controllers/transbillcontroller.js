@@ -1,7 +1,6 @@
 import TransBill from '../model/TransBill.js';
 import Item from '../model/Item.js';
 
-// ➕ Create Transaction Bill
 export const createTransBill = async (req, res) => {
   try {
     const { billCode, billItems } = req.body;
@@ -19,9 +18,9 @@ export const createTransBill = async (req, res) => {
         return res.status(404).json({ message: `Item not found: ${billItem.item}` });
       }
 
-      // ✅ Reduce item quantity even if it goes negative
       if (item.quantity !== null && item.quantity !== undefined) {
         item.quantity = (item.quantity || 0) - billItem.quantity;
+        item.__userEmail = req.user?.email || 'system'; // ✅ Logging for item update
         await item.save();
       }
 
@@ -42,6 +41,7 @@ export const createTransBill = async (req, res) => {
       total,
     });
 
+    newBill.__userEmail = req.user?.email || 'system'; // ✅ For post-save logging
     await newBill.save();
 
     res.status(201).json({ message: '✅ Transaction bill created', bill: newBill });
@@ -53,7 +53,6 @@ export const createTransBill = async (req, res) => {
   }
 };
 
-// 📄 Get All Transaction Bills
 export const getAllTransBills = async (req, res) => {
   try {
     const bills = await TransBill.find().sort({ createdAt: -1 });
@@ -63,7 +62,6 @@ export const getAllTransBills = async (req, res) => {
   }
 };
 
-// 🔍 Get Transaction Bill by ID
 export const getTransBillById = async (req, res) => {
   try {
     const bill = await TransBill.findById(req.params.id);

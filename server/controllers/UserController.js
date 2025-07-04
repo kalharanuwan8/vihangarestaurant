@@ -1,4 +1,3 @@
-// backend/controllers/userController.js
 import User from '../model/User.js';
 
 export const createUser = async (req, res) => {
@@ -16,9 +15,12 @@ export const createUser = async (req, res) => {
 
     const user = new User({
       email,
-      password, // ⚠️ No hashing here as per your request
+      password,
       isAdmin
     });
+
+    // ✅ Set who is performing the action (e.g., admin)
+    user.__userEmail = req.headers['x-user-email'] || 'system';
 
     await user.save();
 

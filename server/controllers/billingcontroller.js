@@ -19,13 +19,12 @@ export const createBill = async (req, res) => {
         return res.status(404).json({ message: `Item with ID ${billItem.item} not found.` });
       }
 
-      // ✅ Allow stock to go negative
+      // Reduce item quantity (allow negative)
       if (item.quantity !== null && item.quantity !== undefined) {
         item.quantity = (item.quantity || 0) - billItem.quantity;
         await item.save();
       }
 
-      // Save item snapshot for bill
       populatedBillItems.push({
         item: item._id,
         itemName: item.itemName,
@@ -44,6 +43,9 @@ export const createBill = async (req, res) => {
       billType
     });
 
+    // Assign user email from middleware for logging
+    newBill.__userEmail = req.userEmail || 'system';
+
     await newBill.save();
 
     res.status(201).json({
@@ -58,7 +60,7 @@ export const createBill = async (req, res) => {
   }
 };
 
-// Get all bills without populating removed items
+// Get all bills
 export const getAllBills = async (req, res) => {
   try {
     const bills = await Bill.find().sort({ createdAt: -1 });
@@ -68,7 +70,7 @@ export const getAllBills = async (req, res) => {
   }
 };
 
-// Get a bill by ID
+// Get bill by ID
 export const getBillById = async (req, res) => {
   try {
     const bill = await Bill.findById(req.params.id);

@@ -6,8 +6,8 @@ import BillingCart from "../components/BillingCart";
 import PrintBillModal from "../components/PrintBillModal";
 import HeldOrders from "./HeldOrders";
 import BilledOrders from "./BilledOrders";
-import Transaction from "./Transaction"; // ✅ NEW
-import TransactionBills from "./TransactionBills"; // ✅ NEW
+import Transaction from "./Transaction";
+import TransactionBills from "./TransactionBills";
 import axios from "../api/axios";
 
 const Cashier = () => {
@@ -93,8 +93,11 @@ const Cashier = () => {
       setCartItems([]);
       setShowBill(false);
       setBillType(null);
+
+      return savedBill;
     } catch (error) {
       console.error("❌ Error saving bill:", error.response?.data || error.message);
+      return null;
     }
   };
 
@@ -157,11 +160,18 @@ const Cashier = () => {
                   {showBill && (
                     <PrintBillModal
                       items={cartItems}
-                      total={cartItems.reduce((t, i) => t + i.price * i.qty, 0)}
+                      total={cartItems.reduce(
+                        (t, i) => t + i.price * i.qty,
+                        0
+                      )}
                       billType={billType}
                       onClose={handleClosePrintModal}
-                      onSave={() => handleSubmitBill(billType, "save")}
-                      onPrint={() => handleSubmitBill(billType, "print")}
+                      onSave={async () => {
+                        console.log("📤 Cashier: handleSubmitBill called for", billType);
+                        const result = await handleSubmitBill(billType, "print");
+                        console.log("✅ Cashier: handleSubmitBill returned:", result);
+                        return result;
+                      }}
                     />
                   )}
                 </>
@@ -183,7 +193,6 @@ const Cashier = () => {
               element={<BilledOrders billedBills={billedBills} />}
             />
 
-            {/* ✅ New Routes for Transactions */}
             <Route path="transaction" element={<Transaction />} />
             <Route path="transaction-bills" element={<TransactionBills />} />
           </Routes>

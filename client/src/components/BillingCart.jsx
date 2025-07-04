@@ -152,10 +152,12 @@ const BillingCart = ({
           total={total}
           billType={billType}
           onClose={() => setShowModal(false)}
-          onSave={() => {
-            onSaveBill(billType);
-            setShowModal(false);
-          }}
+          onSave={async () => {
+  const result = await onSaveBill(billType); // ✅ Wait and return bill
+  setShowModal(false);
+  return result; // ✅ Important!
+}}
+
           onPrint={() => {
             onPrintBill(billType);
             setShowModal(false);
@@ -166,4 +168,4 @@ const BillingCart = ({
   );
 };
 
-export default BillingCart;
+export default BillingCart;   

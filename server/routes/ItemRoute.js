@@ -9,7 +9,6 @@ import {
 
 const router = express.Router();
 
-// Routes
 router.post('/', createItem);             // Create a new item
 router.get('/', getAllItems);             // Get all items
 router.get('/:id', getItemById);          // Get item by ID
